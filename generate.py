@@ -1,10 +1,8 @@
 #! /usr/bin/python
 
-import pyqrcode
+import math, sys, os, logging  # pylint: disable=multiple-imports
 from lxml import etree
-import math
-import sys
-import logging
+import pyqrcode
 logging.basicConfig(level=logging.DEBUG if __debug__ else logging.INFO)
 
 block_size = 10
@@ -36,14 +34,20 @@ def touchesBounds(center, x, y, radius, block_size):
     rad = radius / block_size
     return dis <= rad + 1	
 
-if len(sys.argv) < 4:
-    print "Incorrect args, try:"
-    print './generate.py ./octocat.svg "http://github.com" ./out.svg'
+if len(sys.argv) < 3:
+    print("Incorrect args, try:")
+    print('./generate.py ./octocat.svg "http://github.com" ./out.svg')
     sys.exit(0)
 
 logoPath = sys.argv[1]
 url = sys.argv[2]
-outputname = sys.argv[3]
+if os.path.exists(url):
+    with open(url, encoding='utf-8') as infile:
+        url = infile.read().rstrip()
+if len(sys.argv) < 4:
+    outputname = os.path.splitext(logoPath)[0] + '-qrcode.svg'
+else:
+    outputname = sys.argv[3]
 
 im = generateQRImageForUrl(url);
 
@@ -99,9 +103,9 @@ for element in logo.getchildren():
 
 
 # ElementTree 1.2 doesn't write the SVG file header errata, so do that manually
-f = open(outputname, 'w')
-f.write('<?xml version=\"1.0\" standalone=\"no\"?>\n')
-f.write('<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n')
-f.write('\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n')
+f = open(outputname, 'wb')
+f.write(b'<?xml version=\"1.0\" standalone=\"no\"?>\n')
+f.write(b'<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n')
+f.write(b'\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n')
 f.write(etree.tostring(doc))
 f.close()

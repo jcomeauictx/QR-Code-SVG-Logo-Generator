@@ -1,18 +1,19 @@
-#
-#	pyqrcode.py
-#
-#	David Janes
-#	Discover Anywhere Mobile
-#	2010-11-25
-#
-#	This is a fork of QRCode for Python
-#
-#	qrcode = pyqrcode.QRCode.Make(URL)
-#	image = qrcode.make_image()
-#
-#
+#!/usr/bin/python3
+'''
+pyqrcode.py
 
-import math
+David Janes
+Discover Anywhere Mobile
+2010-11-25
+
+This is a fork of QRCode for Python
+
+qrcode = pyqrcode.QRCode.Make(URL)
+image = qrcode.make_image()
+
+2025 updates by John Comeau <jc@unternet.net>
+''' 
+import math, logging  # pylint: disable=multiple-imports
 from PIL import Image, ImageDraw
 
 #QRCode for Python
@@ -84,17 +85,15 @@ def MakeQR(data, minTypeNumber = 0, errorCorrectLevel = QRErrorCorrectLevel.Q, v
 
 		minTypeNumber = int(minTypeNumber)
 
-	for x in xrange(0, 50):
+	for x in range(0, 50):
 		try:
 			qr = QRCode(minTypeNumber + x, errorCorrectLevel)
 			qr.addData(data)
 			qr.make()
-
 			return	qr
-		except CodeLengthOverflowError, x:
+		except CodeLengthOverflowError:
 			if VERBOSE:
-				print >> sys.stderr, "QRCode.Make - bad guess - trying again", x
-
+				logging.error("QRCode.Make - bad guess %s - trying again", x)
 			continue
 
 def MakeQRImage(data, minTypeNumber = 0, errorCorrectLevel = QRErrorCorrectLevel.Q, **ad):
@@ -240,7 +239,7 @@ class QRCode(object):
 				y = (r + border_in_blocks) * block_in_pixels
 				b = [(x,y),(x+block_in_pixels,y+block_in_pixels)]
 
-				if round > 0:
+				if rounding > 0:
 					rr = round_rectangle(
 						( block_in_pixels, block_in_pixels, ), 
 						rounding, 
@@ -1032,7 +1031,7 @@ class QRRSBlock:
 		if rsBlock == None:
 			raise Exception("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel)
 
-		length = len(rsBlock) / 3
+		length = len(rsBlock) // 3
 
 		list = []
 
@@ -1069,7 +1068,7 @@ class QRBitBuffer:
 	def get(self, index):
 		bufIndex = math.floor(index / 8)
 		val = ( (self.buffer[bufIndex] >> (7 - index % 8) ) & 1) == 1
-		print "get ", val
+		logging.debug("get %s", val)
 		return ( (self.buffer[bufIndex] >> (7 - index % 8) ) & 1) == 1
 	def put(self, num, length):
 		for i in range(length):
