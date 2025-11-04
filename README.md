@@ -24,3 +24,6 @@ PIL (Python Imaging Library)
 
 ## attributions
 * [Pi logo](https://seeklogo.com/vector-logo/440686/pi-network-lvquy)
+* [Monero logo](https://cryptologos.cc/monero)
+* [Bitcoin Cash logo](https://bitcoincash.org/graphics/)
+* [PayPal logo](https://commons.wikimedia.org/wiki/File:PayPal_Logo_Icon_2014.svg) (public domain)
