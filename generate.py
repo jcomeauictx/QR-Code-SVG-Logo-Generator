@@ -94,7 +94,7 @@ scale_str = "scale(" + str(scale) + ")"
 xTrans = ((im.size[0] * block_size) - (width * scale)) / 2.0
 yTrans = ((im.size[1] * block_size) - (height * scale)) / 2.0
 
-translate = "translate(" + str(xTrans - circle_radius / 2) + " " + str(yTrans) + ")"
+translate = "translate(" + str(xTrans) + " " + str(yTrans) + ")"
 
 logo_scale_container = etree.SubElement(doc, 'g', transform=translate + " " + scale_str)
 
