@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-
+'''
+make QR code with logo (icon) in the middle
+'''
 import math, sys, os, logging  # pylint: disable=multiple-imports
 from lxml import etree
 import pyqrcode
@@ -36,6 +38,7 @@ def get_svg_content(filename):
     solution for multiple (or no) namespaces from
     http://stackoverflow.com/a/14552559/493161
     '''
+    # pylint: disable=c-extension-no-member
     document = etree.parse(filename)
     logging.debug('document: %s', document)
     svg = document.xpath('//*[local-name()="svg"]')[0]
@@ -49,7 +52,7 @@ def touches_bounds(center, x, y, radius=RADIUS, block_size=BLOCKSIZE):
     scaled_center = center / block_size
     dis = distance((scaled_center , scaled_center), (x, y))
     rad = radius / block_size
-    return dis <= rad + 1	
+    return dis <= rad + 1
 
 def qr_code_with_logo(logo_path, url, outfile_name=None):
     '''
@@ -63,7 +66,7 @@ def qr_code_with_logo(logo_path, url, outfile_name=None):
         outfile_name = os.path.splitext(logo_path)[0] + '-qrcode.svg'
     logging.debug('generating QR code logo file "%s" and url "%s"',
                   logo_path, url)
-    qr_code = generate_qr_code(url);
+    qr_code = generate_qr_code(url)
     image_size = str(qr_code.size[0] * BLOCKSIZE)
     # create an SVG XML element (see the SVG specification for attribute details)
     doc = etree.Element(
@@ -86,12 +89,20 @@ def qr_code_with_logo(logo_path, url, outfile_name=None):
                     RADIUS,
                     BLOCKSIZE
                 )
-                if (within_bounds):
-                    etree.SubElement(doc, 'rect', x=str(x_position*BLOCKSIZE), y=str(y_position*BLOCKSIZE), width='10', height='10', fill='black')
+                if within_bounds:
+                    etree.SubElement(
+                        doc,
+                        'rect',
+                        x=str(x_position*BLOCKSIZE),
+                        y=str(y_position*BLOCKSIZE),
+                        width='10',
+                        height='10',
+                        fill='black'
+                    )
     logo = get_svg_content(logo_path)
     test = str(logo.get("viewBox"))
     array = []
-    if (test != "None"):
+    if test != "None":
         array = test.split(" ")
         width = float(array[2])
         height = float(array[3])
