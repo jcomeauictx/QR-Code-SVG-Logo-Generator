@@ -53,8 +53,8 @@ def qr_code_with_logo(logo_path, url, outfile_name=None):
         outfile_name = os.path.splitext(logo_path)[0] + '-qrcode.svg'
     logging.debug('generating QR code logo file "%s" and url "%s"',
                   logo_path, url)
-    im = generate_qr_code(url);
-    image_size = str(im.size[0] * BLOCKSIZE)
+    qr_code = generate_qr_code(url);
+    image_size = str(qr_code.size[0] * BLOCKSIZE)
     # create an SVG XML element (see the SVG specification for attribute details)
     doc = etree.Element(
         'svg',
@@ -63,10 +63,10 @@ def qr_code_with_logo(logo_path, url, outfile_name=None):
         version='1.1',
         xmlns='http://www.w3.org/2000/svg'
     )
-    pixels = im.load()
-    center = im.size[0] * BLOCKSIZE / 2
-    for x_position in range(0,im.size[0]):
-        for y_position in range(0, im.size[1]):
+    pixels = qr_code.load()
+    center = qr_code.size[0] * BLOCKSIZE / 2
+    for x_position in range(0, qr_code.size[0]):
+        for y_position in range(0, qr_code.size[1]):
             color = pixels[x_position, y_position]
             if color == (0,0,0,255):
                 within_bounds = not touches_bounds(
@@ -92,10 +92,10 @@ def qr_code_with_logo(logo_path, url, outfile_name=None):
     if (width > dim):
         dim = width
     scale = RADIUS * 2.0 / width
-    scale_str = "scale(" + str(scale) + ")"
-    xTrans = ((im.size[0] * BLOCKSIZE) - (width * scale)) / 2.0
-    yTrans = ((im.size[1] * BLOCKSIZE) - (height * scale)) / 2.0
-    translate = 'translate(%s %s)' % (xTrans, yTrans)
+    scale_str = 'scale(%s)' % scale
+    x_translate = ((qr_code.size[0] * BLOCKSIZE) - (width * scale)) / 2.0
+    y_translate = ((qr_code.size[1] * BLOCKSIZE) - (height * scale)) / 2.0
+    translate = 'translate(%s %s)' % (x_translate, y_translate)
     logo_scale_container = etree.SubElement(doc, 'g', transform=translate + " " + scale_str)
     for element in logo.getchildren():
         logo_scale_container.append(element)
