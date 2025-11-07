@@ -68,14 +68,7 @@ def qr_code_with_logo(logo_path, url, outfile_name=None):
                   logo_path, url)
     qr_code = generate_qr_code(url)
     image_size = str(qr_code.size[0] * BLOCKSIZE)
-    # create an SVG XML element (see the SVG specification for attribute details)
-    doc = etree.Element(
-        'svg',
-        width=image_size,
-        height=image_size,
-        version='1.1',
-        xmlns='http://www.w3.org/2000/svg'
-    )
+    doc = newtree(image_size)
     pixels = qr_code.load()
     center = qr_code.size[0] * BLOCKSIZE / 2
     for x_position in range(0, qr_code.size[0]):
@@ -133,6 +126,19 @@ def write_out(filename, tree):
         outfile.write(b'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"\n')
         outfile.write(b'"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n')
         outfile.write(etree.tostring(tree))
+
+def newtree(size):
+    '''
+    create an SVG XML element (see the SVG specification for attribute details)
+    to house the combined URL QR code and the logo in the middle
+    '''
+    return etree.Element(
+        'svg',
+        width=size,
+        height=size,
+        version='1.1',
+        xmlns='http://www.w3.org/2000/svg'
+    )
 
 if __name__ == '__main__':
     if len(sys.argv) >= 3:
