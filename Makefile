@@ -5,7 +5,7 @@ SCRIPTS := $(wildcard *.py)
 LOGOS := $(filter-out sample.svg $(wildcard *-qrcode.svg), $(wildcard *.svg))
 QRCODES := $(addsuffix -qrcode.svg, $(basename $(LOGOS)))
 all: $(QRCODES)
-	cd bikeshare && $(MAKE) all
+	$(MAKE) -C bikeshare all
 %-qrcode.svg: generate.py pyqrcode.py %.svg %.link
 	$(PYTHON) $(filter-out pyqrcode.py, $+)
 	display $@
