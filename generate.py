@@ -69,13 +69,16 @@ def qr_code_with_logo(logo_path, url, outfile_name=None):
     logging.debug('generating QR code logo file "%s" and url "%s"',
                   logo_path, url)
     qr_code = generate_qr_code(url)
-    image_size = str(qr_code.size[0] * BLOCKSIZE)
-    logo_qr_code = newtree(image_size)
+    x_size, y_size = qr_code.size
+    if x_size != y_size:
+        raise ValueError('QR code not square: x=%s, y=%s' % (x_size, y_size))
+    pixel_size = str(x_size * BLOCKSIZE)
+    logo_qr_code = newtree(pixel_size)
     pixels = qr_code.load()
     center = qr_code.size[0] * BLOCKSIZE / 2
-    logging.debug("qr_code.size: %r, center: %s", qr_code.size, center)
-    for x_position in range(0, qr_code.size[0]):
-        for y_position in range(0, qr_code.size[1]):
+    logging.debug("qr_code.size: %s, center: %s", pixel_size, center)
+    for x_position in range(0, x_size):
+        for y_position in range(0, y_size):
             color = pixels[x_position, y_position]
             if color == BLACK:
                 within_bounds = not touches_bounds(
