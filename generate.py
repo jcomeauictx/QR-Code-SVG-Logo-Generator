@@ -57,56 +57,6 @@ def touches_bounds(center, x, y, radius=RADIUS, blocksize=BLOCKSIZE):
     rad = radius / blocksize
     return dis <= rad + 1
 
-def qr_code_with_logo(logo_path, url, outfile_name=None, blocksize=BLOCKSIZE,
-        radius=RADIUS):
-    '''
-    generate QR code with logo included
-    '''
-    # pylint: disable=consider-using-f-string, c-extension-no-member
-    directory, filename = os.path.split(logo_path)
-    file_prefix = os.path.splitext(filename)[0]
-    if os.path.exists(url):
-        with open(url, encoding='utf-8') as infile:
-            url = infile.read().rstrip()
-    if not outfile_name:
-        outfile_name = os.path.join(directory, file_prefix + '-qrcode.svg')
-    logging.debug('generating QR code logo file "%s" and url "%s"',
-                  logo_path, url)
-    qr_code = generate_qr_code(url)
-    if __debug__:
-        write_out(
-            os.path.join(
-                gettempdir(),
-                file_prefix + '-qrcode-plain.svg'
-            ),
-            image_to_svg(qr_code, blocksize, radius, for_logo=False)
-        )
-    logo_qr_code = image_to_svg(qr_code, blocksize, radius)
-    logo = get_svg_content(logo_path)
-    view_box = str(logo.get("viewBox"))
-    logging.debug('view_box: %s', view_box)
-    array = []
-    if view_box != "None":
-        array = view_box.split(" ")
-        width = float(array[2])
-        height = float(array[3])
-    else :
-        width = float(str(logo.get("width")).replace("px", ""))
-        height = float(str(logo.get("height")).replace("px", ""))
-    scale = radius * 2.0 / width
-    scale_str = 'scale(%s)' % scale
-    x_translate = ((qr_code.size[0] * blocksize) - (width * scale)) / 2.0
-    y_translate = ((qr_code.size[1] * blocksize) - (height * scale)) / 2.0
-    translate = 'translate(%s %s)' % (x_translate, y_translate)
-    logo_scale_container = etree.SubElement(
-        logo_qr_code,
-        'g',
-        transform=translate + " " + scale_str
-    )
-    for element in logo.getchildren():
-        logo_scale_container.append(element)
-    write_out(outfile_name, logo_qr_code)
-
 def write_out(filename, tree):
     '''
     ElementTree 1.2 doesn't write the SVG file header errata,
@@ -168,6 +118,55 @@ def image_to_svg(image, blocksize=BLOCKSIZE, radius=RADIUS,
                         fill='black'
                     )
     return qrcode
+
+def qr_code_with_logo(logo_path, url, outfile_name=None, blocksize=BLOCKSIZE,
+        radius=RADIUS):
+    '''
+    generate QR code with logo included
+    '''
+    # pylint: disable=consider-using-f-string, c-extension-no-member
+    directory, filename = os.path.split(logo_path)
+    file_prefix = os.path.splitext(filename)[0]
+    if os.path.exists(url):
+        with open(url, encoding='utf-8') as infile:
+            url = infile.read().rstrip()
+    if not outfile_name:
+        outfile_name = os.path.join(directory, file_prefix + '-qrcode.svg')
+    logging.debug('generating QR code logo file "%s" and url "%s"',
+                  logo_path, url)
+    qr_code = generate_qr_code(url)
+    if __debug__:
+        write_out(
+            os.path.join(
+                gettempdir(),
+                file_prefix + '-qrcode-plain.svg'
+            ),
+            image_to_svg(qr_code, blocksize, radius, for_logo=False)
+        )
+    logo_qr_code = image_to_svg(qr_code, blocksize, radius)
+    logo = get_svg_content(logo_path)
+    view_box = str(logo.get("viewBox"))
+    logging.debug('view_box: %s', view_box)
+    array = []
+    if view_box != "None":
+        array = view_box.split(" ")
+        width = float(array[2])
+        height = float(array[3])
+    else :
+        width = float(str(logo.get("width")).replace("px", ""))
+        height = float(str(logo.get("height")).replace("px", ""))
+    scale = radius * 2.0 / width
+    x_translate = ((qr_code.size[0] * blocksize) - (width * scale)) / 2.0
+    y_translate = ((qr_code.size[1] * blocksize) - (height * scale)) / 2.0
+    translate = 'translate(%s %s)' % (x_translate, y_translate)
+    logo_scale_container = etree.SubElement(
+        logo_qr_code,
+        'g',
+        transform=translate + ' scale(%s)' % scale
+    )
+    for element in logo.getchildren():
+        logo_scale_container.append(element)
+    write_out(outfile_name, logo_qr_code)
 
 if __name__ == '__main__':
     if len(sys.argv) >= 3:
