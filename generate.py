@@ -85,9 +85,11 @@ def newtree(size):
 
 def image_to_svg(image, blocksize=BLOCKSIZE, radius=RADIUS,
         for_logo=True):
+    # pylint: disable=consider-using-f-string
     '''
     convert image to SVG file, optionally leaving room in the center
     '''
+    # pylint: disable=c-extension-no-member
     x_size, y_size = image.size
     if x_size != y_size:
         raise ValueError('QR code not square: x=%s, y=%s' % (x_size, y_size))
