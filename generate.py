@@ -79,37 +79,9 @@ def qr_code_with_logo(logo_path, url, outfile_name=None, blocksize=BLOCKSIZE,
                 gettempdir(),
                 file_prefix + '-qrcode-plain.svg'
             ),
-            qr_code
+            image_to_svg(qr_code, blocksize, radius, for_logo=False)
         )
-    x_size, y_size = qr_code.size
-    if x_size != y_size:
-        raise ValueError('QR code not square: x=%s, y=%s' % (x_size, y_size))
-    pixel_size = str(x_size * blocksize)
-    logo_qr_code = newtree(pixel_size)
-    pixels = qr_code.load()
-    center = qr_code.size[0] * blocksize / 2
-    logging.debug("qr_code.size: %s, center: %s", pixel_size, center)
-    for x_position in range(0, x_size):
-        for y_position in range(0, y_size):
-            color = pixels[x_position, y_position]
-            if color == BLACK:
-                within_bounds = not touches_bounds(
-                    center,
-                    x_position,
-                    y_position,
-                    radius,
-                    blocksize
-                )
-                if within_bounds:
-                    etree.SubElement(
-                        logo_qr_code,
-                        'rect',
-                        x=str(x_position*blocksize),
-                        y=str(y_position*blocksize),
-                        width='10',
-                        height='10',
-                        fill='black'
-                    )
+    logo_qr_code = image_to_svg(qr_code, blocksize, radius)
     logo = get_svg_content(logo_path)
     view_box = str(logo.get("viewBox"))
     logging.debug('view_box: %s', view_box)
@@ -155,11 +127,47 @@ def newtree(size):
     # pylint: disable=c-extension-no-member
     return etree.Element(
         'svg',
-        width=size,
-        height=size,
+        width=str(size),
+        height=str(size),
         version='1.1',
         xmlns='http://www.w3.org/2000/svg'
     )
+
+def image_to_svg(image, blocksize=BLOCKSIZE, radius=RADIUS,
+        for_logo=True):
+    '''
+    convert image to SVG file, optionally leaving room in the center
+    '''
+    x_size, y_size = image.size
+    if x_size != y_size:
+        raise ValueError('QR code not square: x=%s, y=%s' % (x_size, y_size))
+    pixel_size = x_size * blocksize
+    pixels = image.load()
+    qrcode = newtree(pixel_size)
+    center = x_size * blocksize / 2
+    logging.debug("qr_code.size: %s, center: %s", pixel_size, center)
+    for x_position in range(0, x_size):
+        for y_position in range(0, y_size):
+            color = pixels[x_position, y_position]
+            if color == BLACK:
+                within_bounds = not touches_bounds(
+                    center,
+                    x_position,
+                    y_position,
+                    radius,
+                    blocksize
+                )
+                if within_bounds or not for_logo:
+                    etree.SubElement(
+                        qrcode,
+                        'rect',
+                        x=str(x_position*blocksize),
+                        y=str(y_position*blocksize),
+                        width='10',
+                        height='10',
+                        fill='black'
+                    )
+    return qrcode
 
 if __name__ == '__main__':
     if len(sys.argv) >= 3:
