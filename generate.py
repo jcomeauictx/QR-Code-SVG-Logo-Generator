@@ -152,6 +152,7 @@ def paste_logo(qr_code, logo_path, blocksize=BLOCKSIZE, radius=RADIUS):
         ((qr_code.size[1] * blocksize) - (height * scale)) / 2.0
     )
     transform += ' scale(%s)' % scale
+    logging.debug('transform: %s', transform)
     logo_scale_container = etree.SubElement(
         logo_qr_code,
         'g',
