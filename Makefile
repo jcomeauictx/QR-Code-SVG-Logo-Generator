@@ -12,7 +12,7 @@ all: $(QRCODES)
 %.pylint: %.py
 	$(PYLINT) $<
 pylint: $(SCRIPTS)
-	$(foreach script, $+, $(MAKE) $(script:.py=).pylint)
+	$(MAKE) $(foreach script, $+, $(script:.py=).pylint)
 push:
 	$(foreach remote, $(filter-out original, $(shell git remote)), \
 	  git push $(remote);)

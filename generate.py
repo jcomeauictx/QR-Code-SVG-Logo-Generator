@@ -147,9 +147,10 @@ def paste_logo(qr_code, logo_path, blocksize=BLOCKSIZE, radius=RADIUS):
     logging.debug('x_offset=%s, y_offset=%s, width=%s, height=%s',
                   x_offset, y_offset, width, height)
     scale = radius * 2.0 / width
-    x_translate = ((qr_code.size[0] * blocksize) - (width * scale)) / 2.0
-    y_translate = ((qr_code.size[1] * blocksize) - (height * scale)) / 2.0
-    transform = 'translate(%s %s)' % (x_translate, y_translate)
+    transform = 'translate(%s %s)' % (
+        ((qr_code.size[0] * blocksize) - (width * scale)) / 2.0,
+        ((qr_code.size[1] * blocksize) - (height * scale)) / 2.0
+    )
     transform += ' scale(%s)' % scale
     logo_scale_container = etree.SubElement(
         logo_qr_code,
