@@ -11,8 +11,7 @@ all: $(QRCODES)
 	display $@
 %.pylint: %.py
 	$(PYLINT) $<
-pylint: $(SCRIPTS)
-	$(MAKE) $(foreach script, $+, $(script:.py=).pylint)
+pylint: $(foreach script, $(SCRIPTS), $(script:.py=.pylint))
 push:
 	$(foreach remote, $(filter-out original, $(shell git remote)), \
 	  git push $(remote);)
