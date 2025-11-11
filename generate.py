@@ -59,9 +59,10 @@ def touches_bounds(center, x, y, radius=RADIUS, blocksize=BLOCKSIZE):
     '''
     make sure point (x, y) is in the empty space of the QR code
     '''
+    # NOTE: the following *must* use integer division or icon will be skewed
     scaled_center = center // blocksize
     dis = distance((scaled_center , scaled_center), (x, y))
-    rad = radius // blocksize
+    rad = radius / blocksize
     return dis <= rad + 1
 
 def write_out(filename, tree):
@@ -158,7 +159,10 @@ def paste_logo(qr_code, logo_path, blocksize=BLOCKSIZE, radius=RADIUS):
         ((qr_code.size[0] * blocksize) - (width * scale)) / 2.0,
         ((qr_code.size[1] * blocksize) - (height * scale)) / 2.0
     )
-    transform += ' translate(%s %s)' % (-x_offset * scale, -y_offset * scale)
+    if x_offset or y_offset:
+        transform += ' translate(%s %s)' % (
+            -x_offset * scale, -y_offset * scale
+    )
     transform += ' scale(%s)' % scale
     logging.debug('transform: %s', transform)
     logo_scale_container = etree.SubElement(
